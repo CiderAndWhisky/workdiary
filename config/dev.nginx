@@ -1,0 +1,34 @@
+server {
+    listen 8080 ssl;
+
+    root /home/vecchio/projects/Privat/Web/workdiary/backend/public;
+
+    server_name workdiary.dev;
+
+    ssl_certificate /home/vecchio/projects/Privat/Web/workdiary/config/localhost.crt;
+    ssl_certificate_key /home/vecchio/projects/Privat/Web/workdiary/config/localhost.key;
+    ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+
+    location ~ ^/index\.php$ {
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        fastcgi_param APP_ENV dev;
+
+        internal;
+    }
+
+    location ~ \.php$ {
+        return 404;
+    }
+
+    access_log /var/log/nginx/workdiary_access.log;
+    error_log /var/log/nginx/workdiary_error.log;
+}
